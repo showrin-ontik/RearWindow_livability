@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  livability-scraper:
+    build: .
+    container_name: aarp-livability-scraper
+    environment:
+      - LOCATION=${LOCATION:-10001}
+      - HEADLESS=true
+    volumes:
+      - ./screenshots:/app/screenshots
+      - ./logs:/app/logs
+      - ./livability_data:/app/livability_data
+    stdin_open: true
+    tty: true

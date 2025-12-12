@@ -1,0 +1,28 @@
+{
+    "zip_code": "10001",
+    "overall_livability_score": 66,
+    "categories": {
+        "housing": 51,
+        "neighborhood": 89,
+        "transportation": 98,
+        "environment": 63,
+        "health": 84,
+        "engagement": 61,
+        "opportunity": 17
+    },
+    "demographics": {
+        "total_population": 28452,
+        "race_ethnicity": {
+            "American": "10%",
+            "Asian American": "19%",
+            "Hispanic_Latino": "18%",
+            "White": "55%",
+            "American Indian_Alaska Native": "<1%",
+            "Hawaiian": "<1%",
+            "Two or more races": "11%",
+            "Some other race": "6%",
+            "of the population with a disability": "10%",
+            "of the population with income below poverty": "13%"
+        }
+    }
+}
