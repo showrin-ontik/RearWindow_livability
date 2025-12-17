@@ -13,11 +13,12 @@ import json
 from parse import parse_livability_text
 
 # Configure logging
+os.makedirs('logs', exist_ok=True)
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('livability_scraper.log'),
+        logging.FileHandler('logs/livability_scraper.log'),
         logging.StreamHandler()
     ]
 )
@@ -44,32 +45,6 @@ def setup_driver(headless=False):
     logger.info("Initializing Chrome WebDriver")
     driver = webdriver.Chrome(options=chrome_options)
     return driver
-
-def save_screenshot(driver, location, stage="result"):
-    """
-    Save screenshot of the current page.
-    
-    Args:
-        driver: Selenium WebDriver instance
-        location (str): Location being searched
-        stage (str): Stage identifier for the screenshot
-    """
-    try:
-        # Create screenshots directory if it doesn't exist
-        os.makedirs('screenshots', exist_ok=True)
-        
-        # Generate filename with timestamp
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        safe_location = location.replace(' ', '_').replace(',', '')
-        filename = f"screenshots/{safe_location}_{stage}_{timestamp}.png"
-        
-        # Save screenshot
-        driver.save_screenshot(filename)
-        logger.info(f"Screenshot saved: {filename}")
-        return filename
-    except Exception as e:
-        logger.error(f"Failed to save screenshot: {e}")
-        return None
 
 def extract_livability_data(soup, driver, location):
     """
@@ -181,9 +156,6 @@ def search_livability_index(location, headless=False):
         logger.info("Waiting for results to load")
         time.sleep(5)
         
-        # Save screenshot of the final result
-        screenshot_path = save_screenshot(driver, location, "result")
-        
         # Get the page source and parse with Beautiful Soup
         page_source = driver.page_source
         soup = BeautifulSoup(page_source, 'html.parser')
@@ -202,17 +174,11 @@ def search_livability_index(location, headless=False):
             'location': location,
             'url': driver.current_url,
             'title': driver.title,
-            'screenshot': screenshot_path,
             'livability_data': livability_data
         }
         
     except Exception as e:
         logger.error(f"An error occurred: {e}", exc_info=True)
-        # Try to save screenshot even on error
-        try:
-            save_screenshot(driver, location, "error")
-        except:
-            pass
         raise
     
     finally:

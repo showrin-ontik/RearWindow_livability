@@ -48,10 +48,19 @@ screenshots/
 *.jpg
 *.jpeg
 
-# Output files
+# Output files - Livability data
 livability_data/
 *.json
+!livability_10001.json
+
+# Output files - CSV datasets
 output.csv
+Result.csv
+Final_Data.csv
+Test_Master_Rear_Window - Sheet1.csv
+
+# Output files - Reports and tracking
+missing_livability_report.json
 processing_progress.json
 
 # Docker
@@ -78,6 +87,3 @@ htmlcov/
 
 # Keep example files
 !.env.example
-!livability_10001.json
-
-Test_Master_Rear_Window - Sheet1.csv

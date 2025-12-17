@@ -6,11 +6,12 @@ from datetime import datetime
 from main import search_livability_index
 
 # Configure logging
+os.makedirs('logs', exist_ok=True)
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('process_data.log'),
+        logging.FileHandler('logs/process_data.log'),
         logging.StreamHandler()
     ]
 )
@@ -242,6 +243,57 @@ def process_batch(zip_codes, batch_size=50, output_file='output.csv'):
     if failed_zips:
         logger.warning(f"\nFailed zip codes: {sorted(list(failed_zips))}")
         logger.warning("You can re-run the script to retry failed zip codes.")
+
+def flatten_existing_json_files(json_dir='livability_data', output_file='output.csv'):
+    """
+    Flatten all existing JSON files from livability_data directory and save to CSV.
+    
+    Args:
+        json_dir (str): Directory containing JSON files
+        output_file (str): Output CSV file path
+    """
+    if not os.path.exists(json_dir):
+        logger.warning(f"Directory {json_dir} does not exist")
+        return
+    
+    json_files = [f for f in os.listdir(json_dir) if f.endswith('.json')]
+    
+    if not json_files:
+        logger.warning(f"No JSON files found in {json_dir}")
+        return
+    
+    logger.info(f"Found {len(json_files)} JSON files to flatten")
+    
+    all_flattened_data = []
+    
+    for json_file in json_files:
+        file_path = os.path.join(json_dir, json_file)
+        try:
+            with open(file_path, 'r') as f:
+                json_data = json.load(f)
+            
+            # Extract zip code from filename as backup
+            zip_code = json_file.split('_')[0]
+            
+            # Flatten the data
+            flattened_data = flatten_json(json_data, zip_code)
+            all_flattened_data.append(flattened_data)
+            
+            logger.info(f"✓ Flattened {json_file}")
+            
+        except Exception as e:
+            logger.error(f"✗ Error processing {json_file}: {e}")
+    
+    if all_flattened_data:
+        # Create DataFrame from all flattened data
+        df = pd.DataFrame(all_flattened_data)
+        
+        # Save to CSV
+        df.to_csv(output_file, index=False)
+        logger.info(f"\n✓ Successfully flattened {len(all_flattened_data)} records to {output_file}")
+        logger.info(f"Columns: {list(df.columns)}")
+    else:
+        logger.error("No data was successfully flattened")
 
 def main():
     """Main function to orchestrate the processing."""
